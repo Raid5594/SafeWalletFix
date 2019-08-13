@@ -1,0 +1,124 @@
+input[type=text] {
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+  color: darkgreen;
+  outline: none;
+}
+input[type=text]:focus {
+  border: 2px solid #007bff;
+}
+
+::placeholder {
+  color: #007bff;
+ }
+
+.smart {
+	border: 3px solid #007bff;
+	border-radius: 4px;
+	padding: 10px 10px 0px;
+	margin: 30px auto;
+	width: 600px;
+}
+
+.smartP {
+  	border: 1px solid #007bff; 
+  	padding: 10px; 
+  	border-radius: 2px;
+  	color: darkgreen;
+  	font-size: 1rem;
+  	font-weight: 400;
+  	overflow-wrap: break-word;
+}
+
+.smartInput {
+	border: 2px solid #9370DB;
+	border-radius: 3px;
+	height: calc(2.5*1.25em + 2px);
+	width: 66.333334%;
+	padding: 0.5rem 0.75rem;
+	margin: 0% 1.666666% 0% 0%;
+  	font-size: 0.8rem;
+  	box-sizing: border-box;
+  	display: inline-block;
+}
+
+.smartInput2 {
+	border: 2px solid #9370DB;
+	border-radius: 3px;
+	height: calc(2.5*1.25em + 2px);
+	width: 32.333333%;
+	padding: 0.5rem 0.75rem;
+	margin: 0% 1.666666% 0% 0%;
+  	font-size: 0.8rem;
+  	box-sizing: border-box;
+  	display: inline-block;
+}
+
+.smartInput3 {
+	border: 2px solid #9370DB;
+	border-radius: 3px;
+	height: calc(2.5*1.25em + 2px);
+	width: 21%;
+	padding: 0.5rem 0.75rem;
+	margin: 0% 1.66666% 0% 0%;
+  	font-size: 0.8rem;
+  	box-sizing: border-box;
+  	display: inline;
+}
+
+.smartButton {
+	border: 2px solid #007bff;
+	border-radius: 3px;
+	height: calc(2.5*1.25em + 2px);
+	width: 32%;
+	font-weight: 400;
+  	color: #007bff;
+  	font-weight: 400;
+  	line-height: 1.5;
+  	box-sizing: border-box;
+  	display: inline;
+  	padding: 0.4rem 0.8rem;
+	font-size: 0.8em;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.smartButtonLong {
+	border: 2px solid #007bff;
+	border-radius: 3px;
+	height: calc(2.5*1.25em + 2px);
+	width: 100%;
+	font-weight: 400;
+  	color: #007bff;
+  	font-weight: 400;
+  	line-height: 1.5;
+  	box-sizing: border-box;
+  	display: inline-block;
+  	padding: 0.4rem 0.8rem;
+	font-size: 0.8em;
+	text-align: center;
+	text-transform: uppercase;
+	margin: 0px 0px 10px 0px;
+}
+
+.smartButton:hover, .smartButtonLong:hover {
+	background-color: #007bff;
+	color: #fff;
+  	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.19);
+}
+
+.smartButton:focus, .smartButtonLong:focus {
+  	outline: 0;
+}
+
+.smartButton:active, .smartButtonLong:active  {
+  	box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5), 0 4px 8px 0 rgba(0,0,0,0.45);
+  	transform: translateY(2px);
+}
+
+@media screen and (max-width: 600px) {
+  .smart, .smartButton, .smartInput, .smartInput2, .smartInput3 {
+    width: 100%;
+    margin: 0px 0px 4px 0px;
+  }
+}
