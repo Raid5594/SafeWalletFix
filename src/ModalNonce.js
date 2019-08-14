@@ -6,7 +6,7 @@ const ModalTrigger = ({toggle}) => <button className="smartButtonLong" onClick={
 const ModalContent = ({toggle, modalRef, onKeyDown, onClickAway, children}) => {
 	return ReactDOM.createPortal(
 		<aside className="c-modal-cover" onKeyDown={onKeyDown} onClick={onClickAway} tabIndex="0">
-		  <div className="c-modal" ref={modalRef}>
+		  <div className="c-modal-nonce" ref={modalRef}>
 		    <button className="c-modal__close" onClick={toggle}>
 		      <svg className="c-modal__close-icon" viewBox="0 0 40 40"><path d="M 10,10 L 30,30 M 30,10 L 10,30"></path></svg>
 		    </button>

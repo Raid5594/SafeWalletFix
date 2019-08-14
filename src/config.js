@@ -1,4 +1,4 @@
-export const MULTISIG_ADDRESS = '0x671061CFf5428684cDEacFB074194101fcA7eb70';
+export const MULTISIG_ADDRESS = '0xa0f98ac2b8eee45aa45fa73496c38e66d7805548';
 
 export const MULTISIG_ABI = [
     {

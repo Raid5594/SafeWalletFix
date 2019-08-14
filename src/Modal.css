@@ -60,6 +60,32 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.c-modal-safety {
+  border: 3px solid #007bff;
+  border-radius: 4px;
+  width: 450px;
+  height: auto;
+  margin: 100px auto;
+  padding: 1em 1em 0em 1em;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.c-modal-nonce {
+  border: 3px solid #007bff;
+  border-radius: 4px;
+  width: 270px;
+  height: auto;
+  margin: 100px auto;
+  padding: 1em 1em 0em 1em;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media screen and (max-width: 600px) {
   .c-modal {
     width: 100%;
@@ -110,6 +136,7 @@
   font-size: 1rem;
   font-weight: 400;
   overflow-wrap: break-word;
+  text-align: center;
 }
 
 .modalInput {
