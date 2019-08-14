@@ -130,7 +130,7 @@
   white-space: nowrap !important;
 }
 
-.modalHeader {
+.modalText {
   padding: 10px; 
   color: darkgreen;
   font-size: 1rem;
@@ -138,6 +138,16 @@
   overflow-wrap: break-word;
   text-align: center;
 }
+
+.modalTextTx {
+  padding: 10px; 
+  color: darkgreen;
+  font-size: 1rem;
+  font-weight: 400;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
 
 .modalInput {
   border: 2px solid #9370DB;

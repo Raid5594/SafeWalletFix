@@ -173,3 +173,19 @@ input[type=text]:focus {
     margin: 0px 0px 4px 0px;
   }
 }
+
+.error {
+  color:#db2269;
+  font-size: 0.8em;
+  position: relative;
+  left: 5px;
+  top: -10px;
+}
+
+.errorMultiple{
+  color:#db2269;
+  font-size: 0.8em;
+  position: relative;
+  left: 5px;
+  margin: 0px 44px 0px 0px;
+}

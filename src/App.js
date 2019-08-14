@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { MULTISIG_ABI, MULTISIG_ADDRESS } from './config';
 import Login from './Login.js';
 import BlockchainData from './FetchingBlockchainData.js';
+import BlockchainContent from './BlockchainData.js';
 
 class App extends Component {
 
@@ -23,9 +24,12 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      /*<div>
         { this.state.login ? <BlockchainData etherAddress={this.state.etherAddress}/> : <Login setAddress={this.setAddress} /> }
-      </div>  
+      </div>*/
+      <div>
+        { this.state.login ? <BlockchainContent etherAddress={this.state.etherAddress} /> : <Login setAddress={this.setAddress}/>}
+      </div>
       );
   }
 }

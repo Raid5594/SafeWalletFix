@@ -6,17 +6,44 @@ class Login extends React.Component {
   constructor(props) {
   	super(props);
   	this.state = {
- 		address: ''
+ 		address: null,
+ 		errors: {
+ 			address: ''
+ 		},
+ 		typed: false
     }
   }
 
   handleInputChange = (event) => {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
-    this.setState({
-      [name]: value
-    });
+  	event.preventDefault();
+    const { name, value } = event.target;
+
+    let errors = this.state.errors;
+
+    switch (name) {
+	  case 'address': 
+	    if (value.length != 42) {
+	      errors.address = 'Address must be 42 characters long';
+	  	} else if (value.charAt(0) != '0' || value.charAt(1) != 'x') {
+	  	  errors.address = 'Address must start with 0x';
+	  	} else {
+	      errors.address = '';
+	  	}
+	    break;
+	  default:
+	    break;
+	}
+
+  	this.setState({errors, [name]: value, typed:true});
+  }
+
+  handleSubmit = (event) => {
+  	event.preventDefault();
+  	if(this.state.errors.address.length == 0 && this.state.typed == true) {
+      this.props.setAddress(this.state.address);
+  	}else{
+      console.error('Invalid Form');
+  	}
   }
 
   setAddress = () => {
@@ -24,12 +51,15 @@ class Login extends React.Component {
   }
 
   render() {
+  	const {errors} = this.state;
   	return (
 		<div id="login" className="smartLogin">
-		  <form onSubmit={this.setAddress}>
-			<p className="smartPLogin">Please enter your Ethereum Address:</p>
-			<input type="text" name="address" onChange={this.handleInputChange} className="smartInputLogin" placeholder="Ethereum Address" required/>
-	        <button type="submit" className="smartButtonLogin">Login</button>
+		  <form onSubmit={this.handleSubmit}>
+			  <p className="smartPLogin">Please enter your Ethereum Address:</p>
+			  <input type="text" name="address" onChange={this.handleInputChange} className="smartInputLogin" placeholder="Ethereum Address"/>
+			  {errors.address.length > 0 && 
+                <span className='error'>{errors.address}</span>}
+	      <button type="submit" className="smartButtonLogin">Login</button>
 		  </form>
 		</div>
 	);
