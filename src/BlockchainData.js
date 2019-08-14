@@ -5,6 +5,7 @@ import EthCrypto from 'eth-crypto';
 import { MULTISIG_ABI, MULTISIG_ADDRESS } from './config';
 import SmartContract from './SmartContract'; 
 
+/* Validate forms, clear data in forms, check that transaction transfer works correctly*/ 
 class BlockchainData extends Component {
 
 	constructor(props) {
@@ -42,8 +43,14 @@ class BlockchainData extends Component {
 		       	console.log('The contract balance of account is: ', this.state.contractBalance);
 		    }
 		})
+
+		this.interval = setInterval(this.updateBalances, 15000);
   	}
 
+  	componentWillUnmount() {
+	   	clearInterval(this.interval);
+	}
+  
   	updateBalances = () => {
   		let etherBalance = null;
   		let contractBalance = null
