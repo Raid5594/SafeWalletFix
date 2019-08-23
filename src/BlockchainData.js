@@ -50,7 +50,7 @@ class BlockchainData extends Component {
   	componentWillUnmount() {
 	   	clearInterval(this.interval);
 	}
-  
+
   	updateBalances = () => {
   		let etherBalance = null;
   		let contractBalance = null

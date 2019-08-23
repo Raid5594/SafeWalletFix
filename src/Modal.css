@@ -87,7 +87,7 @@
 }
 
 @media screen and (max-width: 600px) {
-  .c-modal {
+  .c-modal, .c-modal-safety {
     width: 100%;
     heigh: auto;
     margin: 100px 0px;
@@ -230,4 +230,21 @@
     heigh: auto;
     margin: 0px 0px 5px;
   }
+}
+
+.errorMsg {
+  width  : 100%;
+  padding: 0;
+ 
+  font-size: 80%;
+  color: white;
+  background-color: #900;
+  border-radius: 0 0 5px 5px;
+ 
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.errorMsg.active {
+  padding: 0.3em;
 }

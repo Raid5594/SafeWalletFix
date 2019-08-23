@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './Modal.css';
 
-const ModalTrigger = ({toggle}) => <button className="smartButtonLong" onClick={toggle}>check current nonce</button>;
+const ModalTrigger = ({toggle}) => 
+    <form>
+      <button className="smartButtonLong" onClick={toggle}>check current nonce</button>
+    </form>;
 const ModalContent = ({toggle, modalRef, onKeyDown, onClickAway, children}) => {
 	return ReactDOM.createPortal(
 		<aside className="c-modal-cover" onKeyDown={onKeyDown} onClick={onClickAway} tabIndex="0">

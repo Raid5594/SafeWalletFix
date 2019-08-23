@@ -4,14 +4,12 @@ import './Modal.css';
 var Tx = require('ethereumjs-tx').Transaction;
 
 const ModalTrigger = ({handleSubmit, handleInputChange, errors}) => 
-        <form id="DepositForm" onSubmit={handleSubmit}>
-          <input type="text" name="amountToDeposit" onChange={handleInputChange} className="smartInput3" placeholder="Amount"
-            required pattern="\d+"/>
-          <input type="text" name="safetyPubKey" onChange={handleInputChange} className="smartInput3" placeholder="Safety Public"
-            required minLength="42" maxLength="42" pattern="0x\w+"/>
-          <input type="text" name="privateKey" onChange={handleInputChange} className="smartInput3" placeholder="Private Key"
-            required minLength="64" maxLength="64" pattern="\w+"/>
-          <button type="submit" className="smartButton">deposit safely</button>
+        <form id="DepositForm" onSubmit={handleSubmit} noValidate>
+          <input type="text" name="amountToDeposit" onChange={handleInputChange} className="smartInput2" placeholder="Amount"/>
+          <input type="text" name="privateKey" onChange={handleInputChange} className="smartInput2" placeholder="Private Key"/>
+          <button type="submit" className="smartButton">deposit</button>
+          {errors.amountToDeposit.length > 0 && <span className='errorMultiple'>{errors.amountToDeposit}</span>}
+          {errors.privateKey.length > 0 && <span className='errorMultiple'>{errors.privateKey}</span>}
         </form>;
 const ModalContent = ({closeModal, modalRef, onKeyDown, onClickAway, children}) => {
 	return ReactDOM.createPortal(
@@ -29,7 +27,7 @@ const ModalContent = ({closeModal, modalRef, onKeyDown, onClickAway, children}) 
 	);
 };
 
-class ModalDepositSafety extends React.Component {
+class ModalDeposit extends React.Component {
 
   constructor(props) {
   	super(props);
@@ -37,9 +35,13 @@ class ModalDepositSafety extends React.Component {
       txHash: '',
       txReceipt: '',
       amountToDeposit: '',
-      safetyPubKey: '',
       privateKey: '',
   		isOpen: false,
+      errors: {
+        amountToDeposit: '',
+        privateKey: ''
+      },
+      typed: false,
       hashReceipt: false,
       confirmationReceipt:false
       }
@@ -49,41 +51,38 @@ class ModalDepositSafety extends React.Component {
     event.preventDefault();
     const { name, value } = event.target;
 
+    let errors = this.state.errors;
+
     switch (name) {
     case 'amountToDeposit': 
-      if (event.target.validity.patternMismatch) {
-        event.target.setCustomValidity("Please input a number");
+      if (isNaN(value)) {
+        errors.amountToDeposit = 'Amount must be a number';
       } else {
-        event.target.setCustomValidity("");
-      }  
-      break;
-    case 'privateKey':
-      if (event.target.validity.tooShort) {
-        event.target.setCustomValidity("Private key has to be 64 characters");
-      } else if (event.target.validity.patternMismatch) {
-        event.target.setCustomValidity("Only alphanumeric characters are allowed");
-      } else {
-        event.target.setCustomValidity("");
+        errors.amountToDeposit = '';
       }
       break;
-    case 'safetyPubKey':
-      if (event.target.validity.tooShort) {
-        event.target.setCustomValidity("Public key has to be 42 characters");
-      } else if (event.target.validity.patternMismatch) {
-        event.target.setCustomValidity("Public key has to start with '0x'");
+    case 'privateKey':
+      if (value.length == 0) {
+        errors.privateKey = ''; 
+      } else if (value.length != 64) {
+        errors.privateKey = 'Private key length must be 64';
       } else {
-        event.target.setCustomValidity("");
-      }     
+        errors.privateKey = '';
+      }
     default:
       break;
-    }
+  }
 
-    this.setState({ [name]: value });
+    this.setState({errors, [name]: value, typed:true});
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
-    this.deposit(this.state.amountToDeposit, this.state.safetyPubKey ,this.state.privateKey);
+    if(this.state.errors.amountToDeposit.length == 0 && this.state.errors.privateKey.length == 0 && this.state.typed == true) {
+      this.deposit(this.state.amountToDeposit, this.state.privateKey);
+    }else{
+      console.error('Invalid Form');
+    }
   }
   
   openModal = () => {
@@ -107,7 +106,7 @@ class ModalDepositSafety extends React.Component {
 	  this.closeModal();
 	};
 
-  deposit = (amountToDeposit, safetyPubKey, privateKey) => {
+  deposit = (amountToDeposit, privateKey) => {
     let web3 = this.props.web3;
     let multisig = this.props.multisig;
     let multisigAddress = this.props.multisigAddress;
@@ -123,11 +122,11 @@ class ModalDepositSafety extends React.Component {
                 console.log('Estimate of gas usage: ', gasAmount);
                 const txObject = {
                     nonce: web3.utils.toHex(txCount),
-                    gasLimit: web3.utils.toHex(gasAmount), // testing
-                    gasPrice: web3.utils.toHex(gasPrice), // Pay Higher Price for testing purposes
+                    gasLimit: web3.utils.toHex(gasAmount),
+                    gasPrice: web3.utils.toHex(gasPrice * 5), // Pay Higher Price for testing purposes
                     to: multisigAddress,
                     value: web3.utils.toHex(amountToDeposit),
-                    data: multisig.methods.deposit(safetyPubKey).encodeABI()
+                    data: multisig.methods.deposit().encodeABI()
                 };
                 console.log(txObject);
 
@@ -209,4 +208,4 @@ class ModalDepositSafety extends React.Component {
   }
 }
 
-export default ModalDepositSafety;
+export default ModalDeposit;

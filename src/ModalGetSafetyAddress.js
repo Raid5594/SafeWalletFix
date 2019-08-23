@@ -4,7 +4,8 @@ import './Modal.css';
 
 const ModalTrigger = ({onHandleClick, handleInputChange}) => 
         <form id="SafetyForm" onSubmit={onHandleClick}>
-          <input type="text" name="addressToCheck" onChange={handleInputChange} className="smartInput" placeholder="Account address" required/>
+          <input type="text" name="addressToCheck" onChange={handleInputChange} className="smartInput" placeholder="Account address" 
+            required minLength="42" maxLength="42" pattern="0x\w+"/>
           <button type="submit" className="smartButton">safe address</button>
         </form>;
 const ModalContent = ({toggle, modalRef, onKeyDown, onClickAway, children}) => {
@@ -42,6 +43,20 @@ class ModalGetSafetyAddress extends React.Component {
     const target = event.target;
     const value = target.value;
     const name = target.name;
+
+    switch (name) {
+    case 'addressToCheck':
+      if (event.target.validity.tooShort) {
+        event.target.setCustomValidity("Public key has to be 42 characters");
+      } else if (event.target.validity.patternMismatch) {
+        event.target.setCustomValidity("Public key has to start with '0x'");
+      } else {
+        event.target.setCustomValidity("");
+      }  
+    default:
+      break;
+    }
+
     this.setState({
       [name]: value
     });
@@ -49,6 +64,7 @@ class ModalGetSafetyAddress extends React.Component {
 
   onHandleClick = (event) => {
     event.preventDefault();
+    
     this.props.multisig.methods.safetyKeys(this.state.addressToCheck).call({ from: this.state.address }, (error, safetyAddress) => {
       if (error) {
         console.log(error);
@@ -59,6 +75,7 @@ class ModalGetSafetyAddress extends React.Component {
         this.toggle();
       }
     });
+    
   }
 
   toggle = () => {

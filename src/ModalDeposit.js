@@ -4,12 +4,12 @@ import './Modal.css';
 var Tx = require('ethereumjs-tx').Transaction;
 
 const ModalTrigger = ({handleSubmit, handleInputChange, errors}) => 
-        <form id="DepositForm" onSubmit={handleSubmit} noValidate>
-          <input type="text" name="amountToDeposit" onChange={handleInputChange} className="smartInput2" placeholder="Amount"/>
-          <input type="text" name="privateKey" onChange={handleInputChange} className="smartInput2" placeholder="Private Key"/>
+        <form id="DepositForm" onSubmit={handleSubmit}>
+          <input type="text" name="amountToDeposit" onChange={handleInputChange} className="smartInput2" placeholder="Amount"
+            required pattern="\d+"/>
+          <input type="text" name="privateKey" onChange={handleInputChange} className="smartInput2" placeholder="Private Key"
+            required minLength="64" maxLength="64" pattern="\w+"/>
           <button type="submit" className="smartButton">deposit</button>
-          {errors.amountToDeposit.length > 0 && <span className='errorMultiple'>{errors.amountToDeposit}</span>}
-          {errors.privateKey.length > 0 && <span className='errorMultiple'>{errors.privateKey}</span>}
         </form>;
 const ModalContent = ({closeModal, modalRef, onKeyDown, onClickAway, children}) => {
 	return ReactDOM.createPortal(
@@ -37,11 +37,6 @@ class ModalDeposit extends React.Component {
       amountToDeposit: '',
       privateKey: '',
   		isOpen: false,
-      errors: {
-        amountToDeposit: '',
-        privateKey: ''
-      },
-      typed: false,
       hashReceipt: false,
       confirmationReceipt:false
       }
@@ -51,38 +46,32 @@ class ModalDeposit extends React.Component {
     event.preventDefault();
     const { name, value } = event.target;
 
-    let errors = this.state.errors;
-
     switch (name) {
     case 'amountToDeposit': 
-      if (isNaN(value)) {
-        errors.amountToDeposit = 'Amount must be a number';
+      if (event.target.validity.patternMismatch) {
+        event.target.setCustomValidity("Please input a number");
       } else {
-        errors.amountToDeposit = '';
-      }
+        event.target.setCustomValidity("");
+      }  
       break;
     case 'privateKey':
-      if (value.length == 0) {
-        errors.privateKey = ''; 
-      } else if (value.length != 64) {
-        errors.privateKey = 'Private key length must be 64';
+      if (event.target.validity.tooShort) {
+        event.target.setCustomValidity("Private key has to be 64 characters");
+      } else if (event.target.validity.patternMismatch) {
+        event.target.setCustomValidity("Only alphanumeric characters are allowed");
       } else {
-        errors.privateKey = '';
-      }
+        event.target.setCustomValidity("");
+      } 
+      break; 
     default:
       break;
-  }
-
-    this.setState({errors, [name]: value, typed:true});
+    }
+    this.setState({ [name]: value });
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
-    if(this.state.errors.amountToDeposit.length == 0 && this.state.errors.privateKey.length == 0 && this.state.typed == true) {
-      this.deposit(this.state.amountToDeposit, this.state.privateKey);
-    }else{
-      console.error('Invalid Form');
-    }
+    this.deposit(this.state.amountToDeposit, this.state.privateKey);
   }
   
   openModal = () => {
@@ -123,7 +112,7 @@ class ModalDeposit extends React.Component {
                 const txObject = {
                     nonce: web3.utils.toHex(txCount),
                     gasLimit: web3.utils.toHex(gasAmount),
-                    gasPrice: web3.utils.toHex(gasPrice * 5), // Pay Higher Price for testing purposes
+                    gasPrice: web3.utils.toHex(gasPrice), // Pay Higher Price for testing purposes
                     to: multisigAddress,
                     value: web3.utils.toHex(amountToDeposit),
                     data: multisig.methods.deposit().encodeABI()

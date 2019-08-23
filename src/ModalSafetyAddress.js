@@ -42,6 +42,7 @@ class ModalSafetyAddr extends React.Component {
     this.setState({
       [name]: value
     });
+    console.log(this.state.addressToCheck)
   }
 
   getSafetyAddress = (event) => {
@@ -68,10 +69,6 @@ class ModalSafetyAddr extends React.Component {
 	  if (this.modalNode && this.modalNode.contains(event.target)) return;
 	  this.toggle();
 	};
-
-  tokenInputHandler = (event) => {
-  	this.setState({ token : event.target.value });
-  }	
 
   render() {
 
