@@ -18,6 +18,7 @@ input[type=text]:focus {
 	padding: 10px 10px 0px;
 	margin: 30px auto;
 	width: 700px;
+  overflow: auto;
 }
 
 .smartLogin {
@@ -36,6 +37,7 @@ input[type=text]:focus {
   	font-size: 1rem;
   	font-weight: 400;
   	overflow-wrap: break-word;
+    clear: both;
 }
 
 .smartPLogin {
@@ -214,4 +216,47 @@ input[type=text]:focus {
 
 .smth {
   display: inline-block;
+}
+
+.smartDiv select {
+  outline: 0;
+  padding: 10px;
+  display: inline-block;
+  background-color: white;
+  color: darkgreen;
+  height: calc(2.5em + 4px);
+  width: 160px;
+  border-radius: 0px;
+  border: 0;
+  border-sizing: border-box;
+}
+
+.smartDiv select:focus {
+  outline: 0;
+}
+
+@media screen and (max-width: 600px) {
+  .smartDiv select {
+    width: 100%;
+  }
+}
+
+
+.smartErcP {
+  padding: 10px; 
+  color: darkgreen;
+  font-size: 1rem;
+  font-weight: 400;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+  display: inline-block;
+  clear: both;
+  margin: 0px;
+}
+
+.smartDiv {
+  position: relative;
+  border: 1px solid #007bff;
+  border-radius: 2px; 
+  margin: 0 0 10px 0;
 }

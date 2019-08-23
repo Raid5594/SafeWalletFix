@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import './Modal.css';
+import '../Modal.css';
 var Tx = require('ethereumjs-tx').Transaction;
+var EthCrypto = require("eth-crypto");
+var BigNumber = require('bignumber.js');
 
 const ModalTrigger = ({handleSubmit, handleInputChange, errors}) => 
-        <form id="DepositForm" onSubmit={handleSubmit}>
-          <input type="text" name="amountToDeposit" onChange={handleInputChange} className="smartInput3" placeholder="Amount"
+        <form id="SetLimit" onSubmit={handleSubmit}>
+          <input type="text" name="limit" onChange={handleInputChange} className="smartInput3" placeholder="Limit"
             required pattern="\d+"/>
-          <input type="text" name="safetyPubKey" onChange={handleInputChange} className="smartInput3" placeholder="Safety Public"
-            required minLength="42" maxLength="42" pattern="0x\w+"/>
           <input type="text" name="privateKey" onChange={handleInputChange} className="smartInput3" placeholder="Private Key"
             required minLength="64" maxLength="64" pattern="\w+"/>
-          <button type="submit" className="smartButton">deposit safely</button>
+          <input type="text" name="safetyPrivateKey" onChange={handleInputChange} className="smartInput3" placeholder="Safety Key"
+            required minLength="64" maxLength="64" pattern="\w+"/>
+          <button type="submit" className="smartButton">set daily limit</button>
         </form>;
 const ModalContent = ({closeModal, modalRef, onKeyDown, onClickAway, children}) => {
 	return ReactDOM.createPortal(
@@ -29,15 +31,15 @@ const ModalContent = ({closeModal, modalRef, onKeyDown, onClickAway, children}) 
 	);
 };
 
-class ModalDepositSafety extends React.Component {
+class ModalSetLimit extends React.Component {
 
   constructor(props) {
   	super(props);
   	this.state = {
       txHash: '',
       txReceipt: '',
-      amountToDeposit: '',
-      safetyPubKey: '',
+      limit: '',
+      safetyPrivateKey: '',
       privateKey: '',
   		isOpen: false,
       hashReceipt: false,
@@ -50,13 +52,14 @@ class ModalDepositSafety extends React.Component {
     const { name, value } = event.target;
 
     switch (name) {
-    case 'amountToDeposit': 
+    case 'limit': 
       if (event.target.validity.patternMismatch) {
         event.target.setCustomValidity("Please input a number");
       } else {
         event.target.setCustomValidity("");
       }  
       break;
+    case 'safetyPrivateKey':
     case 'privateKey':
       if (event.target.validity.tooShort) {
         event.target.setCustomValidity("Private key has to be 64 characters");
@@ -66,14 +69,6 @@ class ModalDepositSafety extends React.Component {
         event.target.setCustomValidity("");
       }
       break;
-    case 'safetyPubKey':
-      if (event.target.validity.tooShort) {
-        event.target.setCustomValidity("Public key has to be 42 characters");
-      } else if (event.target.validity.patternMismatch) {
-        event.target.setCustomValidity("Public key has to start with '0x'");
-      } else {
-        event.target.setCustomValidity("");
-      }     
     default:
       break;
     }
@@ -83,7 +78,7 @@ class ModalDepositSafety extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    this.deposit(this.state.amountToDeposit, this.state.safetyPubKey ,this.state.privateKey);
+    this.setDailyLimit(this.state.limit ,this.state.privateKey, this.state.safetyPrivateKey);
   }
   
   openModal = () => {
@@ -107,27 +102,50 @@ class ModalDepositSafety extends React.Component {
 	  this.closeModal();
 	};
 
-  deposit = (amountToDeposit, safetyPubKey, privateKey) => {
+  setDailyLimit = (limit, privateKey, safetyPrivateKey) => {
     let web3 = this.props.web3;
     let multisig = this.props.multisig;
     let multisigAddress = this.props.multisigAddress;
     let modal = this;
     let updateBalances = this.props.updateBalances;
+    let addrFrom = this.props.address;
     const priv = Buffer.from(privateKey, 'hex');
 
     web3.eth.getTransactionCount(this.props.address, (err, txCount) => {
-      // Build the transaction
-        web3.eth.getGasPrice().then((gasPrice) => {
-            multisig.methods.deposit().estimateGas({gas: gasPrice, from: this.props.address, value: amountToDeposit}, function(error, gasAmount) {
+        multisig.methods.transactionNonces(addrFrom).call({from: addrFrom}, (error, nonce) => {
+            if (error) {
+                console.log(error)
+            } else {
+            // Build the transaction
+            web3.eth.getGasPrice().then((gasPrice) => {
+
+            // The next few lines go around issues with big numbers
+            let x = new BigNumber(limit);
+            let val = web3.utils.fromWei(x.toString(10), 'ether');
+            let value = web3.utils.toWei(val.toString(), 'ether');
+            
+            let msg = [
+              { type: "address", value: addrFrom},
+              { type: "uint256", value: value},
+              { type: "uint256", value: nonce.toString()}
+            ];
+
+            console.log(msg);
+            const _message = EthCrypto.hash.keccak256(msg); 
+            console.log(`message: ${_message}`);
+            
+            const _signature = EthCrypto.sign(safetyPrivateKey, _message);
+
+            console.log(`signature: ${_signature}`);
+            multisig.methods.setDailyLimit(limit, _signature).estimateGas({gas: gasPrice, from: addrFrom}, function(error, gasAmount) {
                 console.log('Current gas price: ', gasPrice);
                 console.log('Estimate of gas usage: ', gasAmount);
                 const txObject = {
                     nonce: web3.utils.toHex(txCount),
-                    gasLimit: web3.utils.toHex(gasAmount*3), // Estimate is not always correct
+                    gasLimit: web3.utils.toHex(gasAmount*2), // Estimate is not always correct
                     gasPrice: web3.utils.toHex(gasPrice), // Pay Higher Price for testing purposes
                     to: multisigAddress,
-                    value: web3.utils.toHex(amountToDeposit),
-                    data: multisig.methods.deposit(safetyPubKey).encodeABI()
+                    data: multisig.methods.setDailyLimit(limit, _signature).encodeABI()
                 };
                 console.log(txObject);
 
@@ -165,7 +183,9 @@ class ModalDepositSafety extends React.Component {
                 })
                 .on('error', function(error){ console.log(error) });
             })
-        })
+          })
+        }
+      })
     })
   } 
 
@@ -209,4 +229,4 @@ class ModalDepositSafety extends React.Component {
   }
 }
 
-export default ModalDepositSafety;
+export default ModalSetLimit;

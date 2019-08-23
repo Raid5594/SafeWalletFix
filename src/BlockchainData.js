@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import Web3 from 'web3';
 import Tx from 'ethereumjs-tx';
 import EthCrypto from 'eth-crypto';
-import { MULTISIG_ABI, MULTISIG_ADDRESS } from './config';
+import { MULTISIG_ABI, MULTISIG_ADDRESS, ERC20_ABI, TOKENIMPERIAL_ADDRESS, TOKENDEMOCRATIC_ADDRESS } from './config';
 import SmartContract from './SmartContract'; 
+import ERC20 from './erc20/ERC20';
+import './css/ButtonGroup.css';
+
 
 /* Validate forms, clear data in forms, check that transaction transfer works correctly*/ 
 class BlockchainData extends Component {
@@ -15,7 +18,10 @@ class BlockchainData extends Component {
 			multisig: '',
 			etherAddress: '',
 			etherBalance: '',
-			contractBalance: ''
+			tokenImperialBalance: '',
+			tokenDemocraticBalance: '',
+			contractBalance: '',
+			Ethereum: true
 		}
 	}
 	static getDerivedStateFromProps(props, state) {
@@ -27,6 +33,10 @@ class BlockchainData extends Component {
   		this.setState({ web3: web3 });
   		const multisig = new web3.eth.Contract(MULTISIG_ABI, MULTISIG_ADDRESS);
 		this.setState({ multisig: multisig });
+		const tokenImperial = new web3.eth.Contract(ERC20_ABI, TOKENIMPERIAL_ADDRESS);
+		this.setState({ tokenImperial: tokenImperial });
+		const tokenDemocratic = new web3.eth.Contract(ERC20_ABI, TOKENDEMOCRATIC_ADDRESS);
+		this.setState({ tokenDemocratic: tokenDemocratic });
 		web3.eth.getBalance(this.state.etherAddress, (error, balance) => {
 			if (error) {
 				console.log(error)
@@ -44,7 +54,25 @@ class BlockchainData extends Component {
 		    }
 		})
 
-		this.interval = setInterval(this.updateBalances, 15000);
+		tokenImperial.methods.balanceOf(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
+		    if (error) {
+		        console.log(error)
+		    } else {
+		        this.setState({ tokenImperialBalance: balance });
+		       	console.log('The token Imperial balance of account is: ', this.state.tokenImperialBalance);
+		    }
+		})
+
+		tokenDemocratic.methods.balanceOf(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
+		    if (error) {
+		        console.log(error)
+		    } else {
+		        this.setState({ tokenDemocraticBalance: balance });
+		       	console.log('The token Democratic balance of account is: ', this.state.tokenDemocraticBalance);
+		    }
+		})
+
+		// this.interval = setInterval(this.updateBalances, 15000);
   	}
 
   	componentWillUnmount() {
@@ -75,10 +103,39 @@ class BlockchainData extends Component {
 	      	}
       	});
   	}
+
+  	onHandleClick = (e) => {
+  		e.preventDefault();
+  		var current = document.getElementsByClassName("active");
+		current[0].className = current[0].className.replace(" active", "");
+		e.target.className += " active";
+		const name = e.target.name;
+
+	    switch (name) {
+	    case 'Ethereum': 
+	      if (this.state.Ethereum != true) {
+			this.setState({ 'Ethereum': true });
+	      }
+	      break;
+	    case 'ERC20': 
+	      if (this.state.Ethereum == true) {
+			this.setState({ 'Ethereum': false });
+	      }
+	      break;   
+	    default:
+	      break;
+	    }
+  	}
   	
 	render() {
   	  	return (
-      		<div>
+      		<div id="content" className ="smart">
+      			<div className="btnGroup">
+				  	<button className="buttonInGroup active" name="Ethereum" onClick={this.onHandleClick}>Ethereum</button>
+				  	<button className="buttonInGroup" name="ERC20" onClick={this.onHandleClick}>ERC20</button>
+      			</div>
+      			{
+      			this.state.Ethereum ? 
         		<SmartContract 
         			address={this.props.etherAddress} 
         			etherBalance={this.state.etherBalance}
@@ -87,6 +144,12 @@ class BlockchainData extends Component {
         			web3={this.state.web3}
         			multisig={this.state.multisig} 
         			multisigAddress={MULTISIG_ADDRESS}/>
+        		:
+        		<ERC20 
+        			address={this.props.etherAddress} 
+        			tokenImperialBalance={this.state.tokenImperialBalance}
+        			tokenDemocraticBalance={this.state.tokenDemocraticBalance}/>
+        		}
       		</div>  
       	);
   }
