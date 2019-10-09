@@ -1,25 +1,25 @@
 import React, { Component } from 'react';
 import './Smart.css';
-import ModalDeposit from './ModalDeposit.js';
-import ModalDepositSafely from './ModalDepositSafely.js';
-import ModalCurrentNonce from './ModalCurrentNonce';
+import ModalDeposit from './multisigEtherWallet/ModalDeposit.js';
+import ModalDepositSafely from './multisigEtherWallet/ModalDepositSafely.js';
 import ModalToken from './ModalToken';
-import ModalGetSafetyAddress from './ModalGetSafetyAddress.js';
-import ModalTransferSafetyKey from './ModalTransferSafetyKey.js';
-import ModalTransferToken from './ModalTransferToken.js';
+import ModalGetSafetyAddress from './multisigEtherWallet/ModalGetSafetyAddress.js';
+import ModalTransferSafetyKey from './multisigEtherWallet/ModalTransferSafetyKey.js';
+import ModalTransferToken from './multisigEtherWallet/ModalTransferToken.js';
 import ModalSetLimit from './multisigEtherWallet/ModalSetLimit.js';
 import ModalWithdrawLimit from './multisigEtherWallet/ModalWithdrawLimit.js';
 import ModalRecoverFundsSafely from './multisigEtherWallet/ModalRecoverFundsToSafeAddr.js';
 import ModalRecoverFunds from './multisigEtherWallet/ModalRecoverFunds.js';
+import ModalCheckDailyLimit from './multisigEtherWallet/ModalCheckDailyLimit.js';
 
 class SmartContract extends Component {
 	constructor(props) {
 	    super(props);
 	    this.state = {
-	       recoveryOptions: false,
            depositOptions: false,
            dailyLimitOptions: false,
            transactionOptions: false,
+           recoveryOptions: false,
            safetyFeatures: false
 	    }
   	};
@@ -28,6 +28,12 @@ class SmartContract extends Component {
         e.preventDefault();
         const name = e.target.name;
         this.setState({ [name]: !this.state[name] });
+        let options = ['depositOptions', 'dailyLimitOptions', 'transactionOptions', 'recoveryOptions', 'safetyFeatures'];
+        for (let i = 0; i < 5; i++) {
+            if (options[i] != name) {
+                this.setState({ [options[i]]: false });
+            }
+        }
     }
 
   	render() {
@@ -54,8 +60,7 @@ class SmartContract extends Component {
             multisigAddress={this.props.multisigAddress}
             updateBalances={this.props.updateBalances} />
         </React.Fragment>
-        :
-        null
+        : null
         }               
         <button className="smartButtonLong" name= "dailyLimitOptions" onClick={this.handleClick}>dailt limit management</button>
         {
@@ -73,9 +78,10 @@ class SmartContract extends Component {
             multisig={this.props.multisig}
             multisigAddress={this.props.multisigAddress}
             updateBalances={this.props.updateBalances} />
+        <ModalCheckDailyLimit
+            multisig={this.props.multisig} />    
         </React.Fragment>
-        :
-        null
+        : null
         }      
         <button className="smartButtonLong" name= "transactionOptions" onClick={this.handleClick}>transaction options</button>
         {
@@ -94,8 +100,7 @@ class SmartContract extends Component {
             multisigAddress={this.props.multisigAddress}
             updateBalances={this.props.updateBalances} />
         </React.Fragment>
-        :
-        null
+        : null
         }  
         <button className="smartButtonLong" name= "recoveryOptions" onClick={this.handleClick}>recovery options</button>
         {
@@ -114,8 +119,7 @@ class SmartContract extends Component {
             multisigAddress={this.props.multisigAddress}
             updateBalances={this.props.updateBalances}/>              	
         </React.Fragment>
-        :
-        null
+        : null
         }
         <button className="smartButtonLong" name= "safetyFeatures" onClick={this.handleClick}>safety features</button>
         {
@@ -128,8 +132,7 @@ class SmartContract extends Component {
             address={this.props.address} 
             multisig={this.props.multisig} />               
         </React.Fragment>
-        :
-        null
+        : null
         }
       </div>         
       );

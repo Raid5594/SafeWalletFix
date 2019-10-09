@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import {ReceiptComponent, InitialTxHashComponent} from '../sharedComponents/sharedComponents.js';
 import '../Modal.css';
 var Tx = require('ethereumjs-tx').Transaction;
 var EthCrypto = require("eth-crypto");
@@ -35,7 +36,6 @@ class ModalWithdrawLimit extends React.Component {
   	this.state = {
       txHash: '',
       txReceipt: '',
-      limit: '',
       safetyPrivateKey: '',
       privateKey: '',
   		isOpen: false,
@@ -69,6 +69,7 @@ class ModalWithdrawLimit extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
     this.withdrawLimit(this.state.privateKey, this.state.safetyPrivateKey);
+    document.getElementById("WithdrawLimit").reset();    
   }
   
   openModal = () => {
@@ -126,8 +127,8 @@ class ModalWithdrawLimit extends React.Component {
                 console.log('Estimate of gas usage: ', gasAmount);
                 const txObject = {
                     nonce: web3.utils.toHex(txCount),
-                    gasLimit: web3.utils.toHex(gasAmount*2), // Estimate is not always correct
-                    gasPrice: web3.utils.toHex(gasPrice), // Pay Higher Price for testing purposes
+                    gasLimit: web3.utils.toHex(gasAmount), 
+                    gasPrice: web3.utils.toHex(gasPrice), 
                     to: multisigAddress,
                     data: multisig.methods.withdrawLimit(_signature).encodeABI()
                 };
@@ -189,21 +190,14 @@ class ModalWithdrawLimit extends React.Component {
        		onClickAway={this.onClickAway}
        		modalRef={n => this.modalNode = n}> 
        		{this.state.hashReceipt ? 
-            <p className="modalTextTx">Transaction hash is:<br/>
-            {this.state.txHash}
-            </p> 
+            <InitialTxHashComponent transactionHash={this.state.txHash} />
             : null} 
           {this.state.confirmationReceipt ?
-            <p className="modalTextTx">Transaction confirmed! <br/>Please view the receipt:<br/>
-            Transaction hash is:<br/>
-            {this.state.txReceipt.transactionHash}<br/>
-            Block hash is:<br/>
-            {this.state.txReceipt.blockHash}<br/>
-            Block number is:<br/>
-            {this.state.txReceipt.blockNumber}<br/>
-            Gas used:<br/>
-            {this.state.txReceipt.gasUsed.toString('hex')}
-            </p> 
+            <ReceiptComponent
+              transactionHash={this.state.txReceipt.transactionHash}
+              blockHash={this.state.txReceipt.blockHash}
+              blockNumber={this.state.txReceipt.blockNumber}
+              gasUsed={this.state.txReceipt.gasUsed}/>
             : null} 
           
        	</ModalContent>

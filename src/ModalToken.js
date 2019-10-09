@@ -62,6 +62,7 @@ class ModalToken extends React.Component {
     event.preventDefault();
     this.generateSecret();
     this.toggle();
+    document.getElementById("TokenForm").reset();
   }
 
   toggle = () => {

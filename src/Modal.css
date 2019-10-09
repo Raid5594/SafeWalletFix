@@ -136,7 +136,7 @@
   font-size: 1rem;
   font-weight: 400;
   overflow-wrap: break-word;
-  text-align: center;
+  text-align: left;
 }
 
 .modalTextTx {
@@ -146,6 +146,10 @@
   font-weight: 400;
   overflow-wrap: break-word;
   text-align: left;
+}
+
+.modalTextBlack {
+  color: black;
 }
 
 

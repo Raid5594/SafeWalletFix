@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import {ReceiptComponent, InitialTxHashComponent} from '../sharedComponents/sharedComponents.js';
 import '../Modal.css';
 var Tx = require('ethereumjs-tx').Transaction;
 
 const ModalTrigger = ({handleSubmit, handleInputChange, errors}) => 
-        <form id="SetLimit" onSubmit={handleSubmit}>
+        <form id="Recover" onSubmit={handleSubmit}>
           <input type="text" name="amountToTransfer" onChange={handleInputChange} className="smartInput4" placeholder="Amount" 
             required pattern="\d+"/>
           <input type="text" name="ownerPublic" onChange={handleInputChange} className="smartInput4" placeholder="Current Owner"
@@ -89,6 +90,7 @@ class ModalRecoverFunds extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
     this.recoverFunds(this.state.ownerPublic, this.state.recipientAddress, this.state.amountToTransfer, this.state.privateKey);
+    document.getElementById("Recover").reset();    
   }
   
   openModal = () => {
@@ -131,8 +133,8 @@ class ModalRecoverFunds extends React.Component {
             console.log('Estimate of gas usage: ', gasAmount);
             const txObject = {
                 nonce: web3.utils.toHex(txCount),
-                gasLimit: web3.utils.toHex(gasAmount*2), // Estimate is not always correct
-                gasPrice: web3.utils.toHex(gasPrice), // Pay Higher Price for testing purposes
+                gasLimit: web3.utils.toHex(gasAmount), 
+                gasPrice: web3.utils.toHex(gasPrice), 
                 to: multisigAddress,
                 data: multisig.methods.recoverFunds(ownerPublic, recipientAddress, amountToTransfer).encodeABI()
             };
@@ -192,21 +194,14 @@ class ModalRecoverFunds extends React.Component {
        		onClickAway={this.onClickAway}
        		modalRef={n => this.modalNode = n}> 
        		{this.state.hashReceipt ? 
-            <p className="modalTextTx">Transaction hash is:<br/>
-            {this.state.txHash}
-            </p> 
+            <InitialTxHashComponent transactionHash={this.state.txHash} />
             : null} 
           {this.state.confirmationReceipt ?
-            <p className="modalTextTx">Transaction confirmed! <br/>Please view the receipt:<br/>
-            Transaction hash is:<br/>
-            {this.state.txReceipt.transactionHash}<br/>
-            Block hash is:<br/>
-            {this.state.txReceipt.blockHash}<br/>
-            Block number is:<br/>
-            {this.state.txReceipt.blockNumber}<br/>
-            Gas used:<br/>
-            {this.state.txReceipt.gasUsed.toString('hex')}
-            </p> 
+            <ReceiptComponent
+              transactionHash={this.state.txReceipt.transactionHash}
+              blockHash={this.state.txReceipt.blockHash}
+              blockNumber={this.state.txReceipt.blockNumber}
+              gasUsed={this.state.txReceipt.gasUsed}/>
             : null} 
           
        	</ModalContent>
