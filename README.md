@@ -11,9 +11,11 @@
 3. Ensure that you have installed nodejs (^v11.9.0) and npm (^6.10.3)
 3. Choose your preferred way for run the app and do the corresponding steps
 
+## Run localy
+1. Run  `npm run build`
+
 ## Run localy in daemon mode
-1. In the root directory run the following command in the terminal:
-2. Run  `npm run dev`
+1. Run  `npm run dev`
 
 ## Run in docker
 1. You should have installed docker and docker-compose
