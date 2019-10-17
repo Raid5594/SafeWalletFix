@@ -4,11 +4,7 @@
   "description": "Signing messages",
   "main": "index.js",
   "scripts": {
-    "test": "test",
-    "dev": "nodemon server.js"
-  },
-  "scripts": {
-      "start": "cd src && node server.js"
+    "start": "cd src && node server.js"
   },
   "author": "RA",
   "license": "ISC",
@@ -19,7 +15,8 @@
     "express": "^4.17.1",
     "qrcode": "^1.4.1",
     "speakeasy": "^2.0.0",
-    "web3": "^1.2.1"
+    "web3": "^1.2.1",
+    "web3-js": "^1.0.5-beta.26"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

@@ -1,0 +1,12 @@
+version: '3'
+services:
+  server:
+    ports:
+      - "5597:5597"
+    command: npm run start
+    build: ./backend
+  client:
+    ports:
+      - "3000:3000"
+    command: npm run start
+    build: ./frontend

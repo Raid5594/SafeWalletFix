@@ -11,9 +11,14 @@
 3. Ensure that you have installed nodejs (^v11.9.0) and npm (^6.10.3)
 3. Choose your preferred way for run the app and do the corresponding steps
 
-### Run localy
+## Run localy in daemon mode
 1. In the root directory run the following command in the terminal:
 2. Run  `npm run dev`
+
+## Run in docker
+1. You should have installed docker and docker-compose
+2. Run `docker-compose up`
+
 
 ## How to compile/deploy smart contracts
 1. Make sure the follwing are installed: truffle(^v5.0.28), solidity (^v0.5.0), web3.js(^v1.0.0)
