@@ -5,6 +5,12 @@ import { MULTISIG_ABI, MULTISIG_ADDRESS, MULTISIG_ERC20_ABI, MULTISIG_ERC20_ADDR
 import SmartContract from './multisigEtherWallet/SmartContract'; 
 import ERC20 from './erc20/ERC20';
 import '../css/ButtonGroup.css';
+import { connect } from 'react-redux';
+import { setWeb3, setMultisig, setMultisigAddress, setMultisigERC, 
+	setTokenImperial, setTokenDemocratic, updateEtherBalance, 
+	updateContractBalance, updateTokenImperialBalance, updateTokenDemocraticBalance,
+	updateTokenImperialContractBalance, updateTokenDemocraticContractBalance, setUpdateBalancesEther,
+	setUpdateBalancesERC, setMultisigERC20Address } from '../redux/actions';
 
 
 /* Validate forms, clear data in forms, check that transaction transfer works correctly*/ 
@@ -13,152 +19,94 @@ class BlockchainData extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			web3: '',
-			multisig: '',
-			etherAddress: '',
-			etherBalance: '',
-			tokenImperialBalance: '',
-			tokenDemocraticBalance: '',
-			contractBalance: '',
-			tokenImperialContractBalance: '',
-			tokenDemocraticContractBalance: '',
 			Ethereum: true
 		};
 	}
-	static getDerivedStateFromProps(props) {
-		return {etherAddress: props.etherAddress };
-	}
 
 	componentDidMount() {
+
 		const web3 = new Web3('https://ropsten.infura.io/v3/a33baa265ae340c29c82373e91533edf');
-		this.setState({ web3: web3 });
+		this.props.setWeb3(web3);
+
 		const multisig = new web3.eth.Contract(MULTISIG_ABI, MULTISIG_ADDRESS);
-		this.setState({ multisig: multisig });
-		const multisigERC20Token = new web3.eth.Contract(MULTISIG_ERC20_ABI, MULTISIG_ERC20_ADDRESS);
-		this.setState({ multisigERC20Token: multisigERC20Token });
+		this.props.setMultisig(multisig);
+		this.props.setMultisigAddress(MULTISIG_ADDRESS);
+
+		const multisigERC20 = new web3.eth.Contract(MULTISIG_ERC20_ABI, MULTISIG_ERC20_ADDRESS);
+		this.props.setMultisigERC(multisigERC20);
+		this.props.setMultisigERC20Address(MULTISIG_ERC20_ADDRESS);
+
 		const tokenImperial = new web3.eth.Contract(ERC20_ABI, TOKENIMPERIAL_ADDRESS);
-		this.setState({ tokenImperial: tokenImperial });
+		this.props.setTokenImperial(tokenImperial);
+
 		const tokenDemocratic = new web3.eth.Contract(ERC20_ABI, TOKENDEMOCRATIC_ADDRESS);
-		this.setState({ tokenDemocratic: tokenDemocratic });
-		web3.eth.getBalance(this.state.etherAddress, (error, balance) => {
-				if (error) {
-				console.log(error);
-			} else {
-				this.setState({ etherBalance: balance });
-				console.log('Account ether balance: ', this.state.etherBalance);
-			}
-		});
-		multisigERC20Token.methods.tokenBalances(this.state.etherAddress, TOKENIMPERIAL_SYMBOL).call({from: this.state.etherAddress}, (error, balance) => {
-			if (error) {
-				console.log(error);
-			} else {
-				this.setState({ tokenImperialContractBalance: balance });
-					console.log('The imperial token contract balance of account is: ', this.state.tokenImperialContractBalance);
-			}
-		});
+		this.props.setTokenDemocratic(tokenDemocratic);
 
-		multisigERC20Token.methods.tokenBalances(this.state.etherAddress, TOKENDEMOCRATIC_SYMBOL).call({from: this.state.etherAddress}, (error, balance) => {
-			if (error) {
-				console.log(error);
-			} else {
-				this.setState({ tokenDemocraticContractBalance: balance });
-				console.log('The democratic token contract balance of account is: ', this.state.tokenDemocraticContractBalance);
-			}
-		});
+		this.updateBalances(multisig);
+		this.updateERCBalances(tokenImperial, tokenDemocratic, multisigERC20);
 
-		multisig.methods.balances(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
-			if (error) {
-				console.log(error);
-			} else {
-				this.setState({ contractBalance: balance });
-				console.log('The contract balance of account is: ', this.state.contractBalance);
-			}
-		});
+		this.props.setUpdateBalancesEther(this.updateBalances);
+		this.props.setUpdateBalancesERC(this.updateERCBalances);
 
-		tokenImperial.methods.balanceOf(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
-			if (error) {
-				console.log(error);
-			} else {
-				this.setState({ tokenImperialBalance: balance });
-				console.log('The token Imperial balance of account is: ', this.state.tokenImperialBalance);
-			}
-		});
-
-		tokenDemocratic.methods.balanceOf(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
-			if (error) {
-				console.log(error);
-			} else {
-				this.setState({ tokenDemocraticBalance: balance });
-				console.log('The token Democratic balance of account is: ', this.state.tokenDemocraticBalance);
-			}
-		});
-
-		//this.interval = setInterval(this.updateBalances, 15000);
-		//this.interval = updateERCBalances(this.updateERCBalances, 15000);
+		//this.interval = setInterval(this.updateBalances(multisig), 1000);
+		//this.interval = setInterval(this.updateERCBalances(tokenImperial, tokenDemocratic, multisigERC20), 1000);
 	}
 
 	componentWillUnmount() {
 		clearInterval(this.interval);
 	}
 
-	updateBalances = () => {
+	updateBalances = (multisig) => {
 		let etherBalance = null;
 		let contractBalance = null
-		this.state.multisig.methods.balances(this.state.etherAddress).call({ from: this.state.etherAddress }, (error, balance) => {
+		multisig.methods.balances(this.props.etherAddress).call({ from: this.props.etherAddress }, (error, balance) => {
 			if (error) {
 				console.log(error);
 			} else {
 				contractBalance = balance;
-				this.state.web3.eth.getBalance(this.state.etherAddress, (error, balance) => {
+				this.props.web3.eth.getBalance(this.props.etherAddress, (error, balance) => {
 					if (error) {
 						console.log(error, 'Something went wrong');
 					} else {
 						etherBalance = balance;
-						console.log(etherBalance);
-						console.log('Ether',etherBalance);
-						this.setState({ contractBalance : contractBalance, etherBalance : etherBalance});
-						console.log('New etherBalance : ', this.state.etherBalance);
-						console.log('New contractBalance : ', this.state.contractBalance);
+						this.props.updateEtherBalance(etherBalance);
+						this.props.updateContractBalance(contractBalance);
 					}
 				});
 			}
 		});
 	}
-	updateERCBalances = () => {
-		
-		this.state.tokenImperial.methods.balanceOf(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
+	updateERCBalances = (tokenImperial, tokenDemocratic, multisigERC20) => {
+
+		tokenImperial.methods.balanceOf(this.props.etherAddress).call({from: this.props.etherAddress}, (error, balance) => {
 			if (error) {
 				console.log(error);
 			} else {
-				this.setState({ tokenImperialBalance: balance });
-				console.log('The token Imperial balance of account is: ', this.state.tokenImperialBalance);
+				this.props.updateTokenImperialBalance(balance);
 			}
 		});
 
-		this.state.tokenDemocratic.methods.balanceOf(this.state.etherAddress).call({from: this.state.etherAddress}, (error, balance) => {
+		tokenDemocratic.methods.balanceOf(this.props.etherAddress).call({from: this.props.etherAddress}, (error, balance) => {
 			if (error) {
 				console.log(error);
 			} else {
-				this.setState({ tokenDemocraticBalance: balance });
-				console.log('The token Democratic balance of account is: ', this.state.tokenDemocraticBalance);
+				this.props.updateTokenDemocraticBalance(balance);
 			}
 		});
 
-		this.state.multisigERC20Token.methods.tokenBalances(this.state.etherAddress, TOKENIMPERIAL_SYMBOL).call({from: this.state.etherAddress}, (error, balance) => {
+		multisigERC20.methods.tokenBalances(this.props.etherAddress, TOKENIMPERIAL_SYMBOL).call({from: this.props.etherAddress}, (error, balance) => {
 			if (error) {
 				console.log(error);
 			} else {
-				this.setState({ tokenImperialContractBalance: balance });
-				console.log('The imperial token contract balance of account is: ', this.state.tokenImperialContractBalance);
+				this.props.updateTokenImperialContractBalance(balance);
 			}
 		});
 
-		this.state.multisigERC20Token.methods.tokenBalances(this.state.etherAddress, TOKENDEMOCRATIC_SYMBOL).call({from: this.state.etherAddress}, (error, balance) => {
+		multisigERC20.methods.tokenBalances(this.props.etherAddress, TOKENDEMOCRATIC_SYMBOL).call({from: this.props.etherAddress}, (error, balance) => {
 			if (error) {
 				console.log(error);
 			} else {
-				this.setState({ tokenDemocraticContractBalance: balance });
-				console.log('The democratic token contract balance of account is: ', this.state.tokenDemocraticContractBalance);
+				this.props.updateTokenDemocraticContractBalance(balance);
 			}
 		});
 	}
@@ -166,8 +114,8 @@ class BlockchainData extends Component {
 	onHandleClick = (e) => {
 		e.preventDefault();
 		var current = document.getElementsByClassName('active');
-		current[0].className = current[0].className.replace('active', '');
-		e.target.className += 'active';
+		current[0].className = current[0].className.replace(' active', '');
+		e.target.className += ' active';
 		const name = e.target.name;
 
 		switch (name) {
@@ -195,31 +143,34 @@ class BlockchainData extends Component {
 				</div>
 				{
 				this.state.Ethereum ? 
-				<SmartContract 
-				address={this.props.etherAddress} 
-				etherBalance={this.state.etherBalance}
-				contractBalance={this.state.contractBalance}
-				updateBalances={this.updateBalances}
-				web3={this.state.web3}
-				multisig={this.state.multisig} 
-				multisigAddress={MULTISIG_ADDRESS}/>
+				<SmartContract />
 				:
-				<ERC20 
-				web3={this.state.web3}
-				address={this.props.etherAddress} 
-				tokenImperialBalance={this.state.tokenImperialBalance}
-				tokenDemocraticBalance={this.state.tokenDemocraticBalance}
-				tokenImperial={this.state.tokenImperial}
-				tokenDemocratic={this.state.tokenDemocratic}
-				multisigERC20Address={MULTISIG_ERC20_ADDRESS}
-				multisigERC20Token={this.state.multisigERC20Token}
-				tokenDemocraticContractBalance={this.state.tokenDemocraticContractBalance}
-				tokenImperialContractBalance={this.state.tokenImperialContractBalance}
-				updateERCBalances={this.updateERCBalances}/>
+				<ERC20 />
 				}
 			</div>  
 		);
   }
 }
 
-export default BlockchainData;
+function mapStateToProps(state) {
+	return { 
+		etherAddress: state.data.etherAddress,
+		web3: state.data.web3,
+		multisig: state.data.multisig,
+		multisigERC20: state.data.multisigERC20,
+		tokenImperial: state.data.tokenImperial,
+		tokenDemocratic: state.data.tokenDemocratic,
+		etherBalance: state.data.etherBalance,
+		contractBalance: state.data.contractBalance,
+		tokenImperialBalance: state.data.tokenImperialBalance,
+		tokenDemocracticBalance: state.data.tokenDemocracticBalance,
+		tokenImperialContractBalance: state.data.tokenImperialContractBalance,
+		tokenDemocraticContractBalance: state.data.tokenDemocraticContractBalance
+	};
+}
+
+export default connect(mapStateToProps, { setWeb3, setMultisig, setMultisigAddress, setMultisigERC, 
+	setTokenImperial, setTokenDemocratic, updateEtherBalance, 
+	updateContractBalance, updateTokenImperialBalance, updateTokenDemocraticBalance,
+	updateTokenImperialContractBalance, updateTokenDemocraticContractBalance, setUpdateBalancesEther,
+	setUpdateBalancesERC, setMultisigERC20Address })(BlockchainData);

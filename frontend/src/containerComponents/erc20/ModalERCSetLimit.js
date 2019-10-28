@@ -7,6 +7,7 @@ import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
 import EthCrypto from 'eth-crypto';
 import BigNumber from 'bignumber.js';
+import { connect } from 'react-redux';
 
 class ModalERCSetLimit extends React.Component {
 
@@ -81,16 +82,16 @@ class ModalERCSetLimit extends React.Component {
     };
 
     setDailyLimit = (limit, privateKey, safetyPrivateKey) => {
-        let web3 = this.props.web3;
-        let multisigERC20Token = this.props.multisigERC20Token;
-        let multisigERC20Address = this.props.multisigERC20Address;
-        let modal = this;
-        let tokenSymbol = this.props.tokenSymbol;
-        let addrFrom = this.props.address;
+        const web3 = this.props.web3;
+        const multisigERC20 = this.props.multisigERC20;
+        const multisigERC20Address = this.props.multisigERC20Address;
+        const modal = this;
+        const tokenSymbol = this.props.tokenSymbol;
+        const addrFrom = this.props.address;
         const priv = Buffer.from(privateKey, 'hex');
 
         web3.eth.getTransactionCount(this.props.address, (err, txCount) => {
-            multisigERC20Token.methods.transactionNonces(addrFrom).call({from: addrFrom}, (error, nonce) => {
+            multisigERC20.methods.transactionNonces(addrFrom).call({from: addrFrom}, (error, nonce) => {
                 if (error) {
                     console.log(error);
                 } else {
@@ -116,7 +117,7 @@ class ModalERCSetLimit extends React.Component {
                         const _signature = EthCrypto.sign(safetyPrivateKey, _message);
 
                         console.log(`signature: ${_signature}`);
-                        multisigERC20Token.methods.setDailyLimit(tokenSymbol, limit, _signature).estimateGas({gas: gasPrice, from: addrFrom}, function(error, gasAmount) {
+                        multisigERC20.methods.setDailyLimit(tokenSymbol, limit, _signature).estimateGas({gas: gasPrice, from: addrFrom}, function(error, gasAmount) {
                             console.log('Current gas price: ', gasPrice);
                             console.log('Estimate of gas usage: ', gasAmount);
                             const txObject = {
@@ -124,7 +125,7 @@ class ModalERCSetLimit extends React.Component {
                                 gasLimit: web3.utils.toHex(gasAmount), 
                                 gasPrice: web3.utils.toHex(gasPrice),
                                 to: multisigERC20Address,
-                                data: multisigERC20Token.methods.setDailyLimit(tokenSymbol, limit, _signature).encodeABI()
+                                data: multisigERC20.methods.setDailyLimit(tokenSymbol, limit, _signature).encodeABI()
                             };
                             console.log(txObject);
 
@@ -200,4 +201,14 @@ class ModalERCSetLimit extends React.Component {
     }
 }
 
-export default ModalERCSetLimit;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        multisigERC20: state.data.multisigERC20,
+        multisigERC20Address: state.data.multisigERC20Address,
+        tokenSymbol: state.data.chosenTokenSymbol
+    };
+}
+
+export default connect(mapStateToProps)(ModalERCSetLimit);

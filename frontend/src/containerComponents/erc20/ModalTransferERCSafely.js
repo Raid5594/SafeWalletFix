@@ -7,6 +7,7 @@ import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
 import EthCrypto from 'eth-crypto';
 import BigNumber from 'bignumber.js';        
+import { connect } from 'react-redux';
 
 class ModalTransferERCSafely extends React.Component {
 
@@ -92,20 +93,22 @@ class ModalTransferERCSafely extends React.Component {
 
     transfer = (amountToTransfer, recipientAddress, privateKey, safetyPrivateKey) => {
       
-        let web3 = this.props.web3;
-        let multisigERC20Token = this.props.multisigERC20Token;
-        let multisigERC20Address = this.props.multisigERC20Address;
-        let modal = this;
-        let updateERCBalances = this.props.updateERCBalances;
-        let tokenSymbol = this.props.tokenSymbol;
-        let addrFrom = this.props.address;
+        const web3 = this.props.web3;
+        const tokenImperial = this.props.tokenImperial;
+        const tokenDemocratic = this.props.tokenDemocratic;
+        const multisigERC20 = this.props.multisigERC20;
+        const multisigERC20Address = this.props.multisigERC20Address;
+        const modal = this;
+        const updateERCBalances = this.props.updateERCBalances;
+        const tokenSymbol = this.props.tokenSymbol;
+        const addrFrom = this.props.address;
         const priv = Buffer.from(privateKey, 'hex');
         BigNumber.set({ DECIMAL_PLACES: 18 }); // We need it to convert large wei inputs
 
         // Getting Ethereum transaction count
         web3.eth.getTransactionCount(addrFrom, (err, txCount) => {
             // Retrieving the current nonce inside the contract
-            multisigERC20Token.methods.transactionNonces(addrFrom).call({from: addrFrom}, (error, nonce) => {
+            multisigERC20.methods.transactionNonces(addrFrom).call({from: addrFrom}, (error, nonce) => {
                 if (error) {
                     console.log(error);
                 } else {
@@ -133,7 +136,7 @@ class ModalTransferERCSafely extends React.Component {
                     // Build the transaction
                     web3.eth.getGasPrice().then((gasPrice) => {
                         console.log('Current gas price: ', gasPrice);    
-                        multisigERC20Token.methods.verifyTransaction__ef(recipientAddress, value, _signature, tokenSymbol).estimateGas({gas: gasPrice, from: addrFrom}, function(error, gasAmount) {
+                        multisigERC20.methods.verifyTransaction__ef(recipientAddress, value, _signature, tokenSymbol).estimateGas({gas: gasPrice, from: addrFrom}, function(error, gasAmount) {
                             if (error) {
                                 console.log(error);
                                 
@@ -145,7 +148,7 @@ class ModalTransferERCSafely extends React.Component {
                                     gasLimit: web3.utils.toHex(gasAmount), 
                                     gasPrice: web3.utils.toHex(gasPrice),
                                     to: multisigERC20Address,
-                                    data: multisigERC20Token.methods.verifyTransaction__ef(recipientAddress, value, _signature, tokenSymbol).encodeABI()
+                                    data: multisigERC20.methods.verifyTransaction__ef(recipientAddress, value, _signature, tokenSymbol).encodeABI()
                                 };
                                 console.log(txObject);
 
@@ -172,7 +175,8 @@ class ModalTransferERCSafely extends React.Component {
                                 .once('confirmation', function(confNumber, receipt){ 
                                     console.log('Transaction confirmation number: ', confNumber);
                                     console.log('Second receipt of transaction: ', receipt);
-                                    updateERCBalances();
+
+                                    updateERCBalances(tokenImperial, tokenDemocratic, multisigERC20);
                             
                                     modal.setState({ 
                                         txReceipt: receipt,
@@ -222,4 +226,17 @@ class ModalTransferERCSafely extends React.Component {
     }
 }
 
-export default ModalTransferERCSafely;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        tokenImperial: state.data.tokenImperial,
+        tokenDemocratic: state.data.tokenDemocratic,
+        multisigERC20: state.data.multisigERC20,
+        multisigERC20Address: state.data.multisigERC20Address,
+        updateERCBalances: state.data.updateBalancesERC,
+        tokenSymbol: state.data.chosenTokenSymbol
+    };
+}
+
+export default connect(mapStateToProps)(ModalTransferERCSafely);

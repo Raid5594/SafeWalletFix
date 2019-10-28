@@ -5,6 +5,8 @@ import ModalContent from '../../presentationalComponents/ModalContent.js';
 import DepositForm from '../../presentationalComponents/DepositForm.js';
 import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
+import { connect } from 'react-redux';
+
 
 class ModalDeposit extends React.Component {
 
@@ -76,11 +78,11 @@ class ModalDeposit extends React.Component {
     };
 
     deposit = (amountToDeposit, privateKey) => {
-        let web3 = this.props.web3;
-        let multisig = this.props.multisig;
-        let multisigAddress = this.props.multisigAddress;
-        let modal = this;
-        let updateBalances = this.props.updateBalances;
+        const web3 = this.props.web3;
+        const multisig = this.props.multisig;
+        const multisigAddress = this.props.multisigAddress;
+        const modal = this;
+        const updateBalances = this.props.updateBalances;
         const priv = Buffer.from(privateKey, 'hex');
 
         web3.eth.getTransactionCount(this.props.address, (err, txCount) => {
@@ -122,7 +124,7 @@ class ModalDeposit extends React.Component {
                     .once('confirmation', function(confNumber, receipt){ 
                         console.log('Transaction confirmation number: ', confNumber);
                         console.log('Transaction receipt: ', receipt);
-                        updateBalances();
+                        updateBalances(multisig);
                         
                         modal.setState({ 
                             txReceipt: receipt,
@@ -168,4 +170,14 @@ class ModalDeposit extends React.Component {
     }
 }
 
-export default ModalDeposit;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        multisig: state.data.multisig,
+        multisigAddress: state.data.multisigAddress,
+        updateBalances: state.data.updateBalancesEther
+    };
+}
+
+export default connect(mapStateToProps)(ModalDeposit);

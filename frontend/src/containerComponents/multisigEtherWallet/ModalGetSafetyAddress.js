@@ -2,6 +2,7 @@ import React from 'react';
 import ModalContent from '../../presentationalComponents/ModalContent.js';
 import SafeAddressForm from '../../presentationalComponents/SafeAddressForm.js';
 import '../../css/Modal.css';
+import { connect } from 'react-redux';
 
 class ModalGetSafetyAddress extends React.Component {
 
@@ -91,4 +92,11 @@ class ModalGetSafetyAddress extends React.Component {
     }
 }
 
-export default ModalGetSafetyAddress;
+function mapStateToProps(state) {
+    return { 
+        address: state.data.etherAddress,
+        multisig: state.data.multisig
+    };
+}
+
+export default connect(mapStateToProps)(ModalGetSafetyAddress);

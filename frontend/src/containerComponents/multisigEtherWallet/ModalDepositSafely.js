@@ -5,6 +5,7 @@ import ModalContent from '../../presentationalComponents/ModalContent.js';
 import SafeDepositForm from '../../presentationalComponents/SafeDepositForm.js';
 import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
+import { connect } from 'react-redux';
 
 class ModalDepositSafety extends React.Component {
 
@@ -131,7 +132,7 @@ class ModalDepositSafety extends React.Component {
                     .once('confirmation', function(confNumber, receipt){ 
                         console.log('Transaction confirmation number: ', confNumber); 
                         console.log('Transaction receipt: ', receipt);
-                        updateBalances();
+                        updateBalances(multisig);
                         
                         modal.setState({ 
                           txReceipt: receipt,
@@ -178,4 +179,14 @@ class ModalDepositSafety extends React.Component {
     }
 }
 
-export default ModalDepositSafety;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        multisig: state.data.multisig,
+        multisigAddress: state.data.multisigAddress,
+        updateBalances: state.data.updateBalancesEther
+    };
+}
+
+export default connect(mapStateToProps)(ModalDepositSafety);

@@ -11,6 +11,7 @@ import ModalWithdrawLimit from './ModalWithdrawLimit.js';
 import ModalRecoverFundsSafely from './ModalRecoverFundsToSafeAddr.js';
 import ModalRecoverFunds from './ModalRecoverFunds.js';
 import ModalCheckDailyLimit from './ModalCheckDailyLimit.js';
+import { connect } from 'react-redux';
 
 class SmartContract extends Component {
     constructor(props) {
@@ -47,18 +48,8 @@ class SmartContract extends Component {
         {
         this.state.depositOptions ? 
         <React.Fragment>       
-        <ModalDeposit 
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances} />
-        <ModalDepositSafely
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances} />
+            <ModalDeposit />
+            <ModalDepositSafely />
         </React.Fragment>
         : null
         }               
@@ -66,20 +57,9 @@ class SmartContract extends Component {
         {
         this.state.dailyLimitOptions ? 
         <React.Fragment>       
-        <ModalSetLimit
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances} />
-        <ModalWithdrawLimit
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances} />
-        <ModalCheckDailyLimit
-            multisig={this.props.multisig} />    
+            <ModalSetLimit />
+            <ModalWithdrawLimit />
+            <ModalCheckDailyLimit />    
         </React.Fragment>
         : null
         }      
@@ -87,18 +67,8 @@ class SmartContract extends Component {
         {
         this.state.transactionOptions ? 
         <React.Fragment>       
-        <ModalTransferSafetyKey 
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances} />
-        <ModalTransferToken 
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances} />
+            <ModalTransferSafetyKey />
+            <ModalTransferToken />
         </React.Fragment>
         : null
         }  
@@ -106,18 +76,8 @@ class SmartContract extends Component {
         {
         this.state.recoveryOptions ? 
         <React.Fragment>
-        <ModalRecoverFundsSafely
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances}/>
-        <ModalRecoverFunds
-            web3={this.props.web3} 
-            address={this.props.address} 
-            multisig={this.props.multisig}
-            multisigAddress={this.props.multisigAddress}
-            updateBalances={this.props.updateBalances}/>              	
+            <ModalRecoverFundsSafely />
+            <ModalRecoverFunds />              	
         </React.Fragment>
         : null
         }
@@ -125,12 +85,8 @@ class SmartContract extends Component {
         {
         this.state.safetyFeatures ? 
         <React.Fragment>
-        <ModalToken 
-            address={this.props.address}
-            web3={this.props.web3} />
-        <ModalGetSafetyAddress 
-            address={this.props.address} 
-            multisig={this.props.multisig} />               
+            <ModalToken />
+            <ModalGetSafetyAddress />               
         </React.Fragment>
         : null
         }
@@ -139,4 +95,12 @@ class SmartContract extends Component {
   }
 }
 
-export default SmartContract;
+function mapStateToProps(state) {
+    return { 
+        address: state.data.etherAddress,
+        etherBalance: state.data.etherBalance,
+        contractBalance: state.data.contractBalance
+    };
+}
+
+export default connect(mapStateToProps)(SmartContract);

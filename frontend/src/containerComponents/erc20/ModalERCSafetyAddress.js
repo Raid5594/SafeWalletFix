@@ -2,6 +2,7 @@ import React from 'react';
 import ModalContent from '../../presentationalComponents/ModalContent.js';
 import SafeAddressFormERC from '../../presentationalComponents/SafeAddressFormERC.js';
 import '../../css/Modal.css';
+import { connect } from 'react-redux';
 
 class ModalERCSafetyAddress extends React.Component {
 
@@ -39,10 +40,10 @@ class ModalERCSafetyAddress extends React.Component {
         });
     }
 
-    onHandleClick = (event) => {
+    handleSubmit = (event) => {
         event.preventDefault();
         
-        this.props.multisigERC20Token.methods.safetyKeys(this.state.addressToCheck, this.props.tokenSymbol).call({ from: this.state.address }, (error, safetyAddress) => {
+        this.props.multisigERC20.methods.safetyKeys(this.state.addressToCheck, this.props.tokenSymbol).call({ from: this.props.address }, (error, safetyAddress) => {
             if (error) {
                 console.log(error);
             } else {
@@ -74,7 +75,7 @@ class ModalERCSafetyAddress extends React.Component {
         return (
             <span>
                 <SafeAddressFormERC 
-                onHandleClick={this.onHandleClick}
+                handleSubmit={this.handleSubmit}
                 handleInputChange={this.handleInputChange}/>
                 {
                 this.state.isOpen && 
@@ -95,4 +96,12 @@ class ModalERCSafetyAddress extends React.Component {
     }
 }
 
-export default ModalERCSafetyAddress;
+function mapStateToProps(state) {
+    return { 
+        address: state.data.etherAddress,
+        multisigERC20: state.data.multisigERC20,
+        tokenSymbol: state.data.chosenTokenSymbol
+    };
+}
+
+export default connect(mapStateToProps)(ModalERCSafetyAddress);

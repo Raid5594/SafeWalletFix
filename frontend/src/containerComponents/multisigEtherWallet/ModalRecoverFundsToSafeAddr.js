@@ -5,6 +5,7 @@ import ModalContent from '../../presentationalComponents/ModalContent.js';
 import SafeRecoveryForm from '../../presentationalComponents/SafeRecoveryForm.js';
 import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
+import { connect } from 'react-redux';
 
 class ModalRecoverFundsSafely extends React.Component {
 
@@ -90,12 +91,12 @@ class ModalRecoverFundsSafely extends React.Component {
     };
 
     recoverFundsToSafeAddress = (ownerPublic, recipientAddress, amountToTransfer, privateKey) => {
-        let web3 = this.props.web3;
-        let multisig = this.props.multisig;
-        let multisigAddress = this.props.multisigAddress;
-        let modal = this;
-        let updateBalances = this.props.updateBalances;
-        let addrFrom = this.props.address;
+        const web3 = this.props.web3;
+        const multisig = this.props.multisig;
+        const multisigAddress = this.props.multisigAddress;
+        const modal = this;
+        const updateBalances = this.props.updateBalances;
+        const addrFrom = this.props.address;
         const priv = Buffer.from(privateKey, 'hex');
 
         web3.eth.getTransactionCount(addrFrom, (err, txCount) => {
@@ -137,7 +138,7 @@ class ModalRecoverFundsSafely extends React.Component {
                     .once('confirmation', function(confNumber, receipt){ 
                         console.log('Transaction confirmation number: ', confNumber);
                         console.log('Transaction receipt: ', receipt);
-                        updateBalances();
+                        updateBalances(multisig);
                         
                         modal.setState({ 
                           txReceipt: receipt,
@@ -184,4 +185,14 @@ class ModalRecoverFundsSafely extends React.Component {
     }
 }
 
-export default ModalRecoverFundsSafely;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        multisig: state.data.multisig,
+        multisigAddress: state.data.multisigAddress,
+        updateBalances: state.data.updateBalancesEther
+    };
+}
+
+export default connect(mapStateToProps)(ModalRecoverFundsSafely);

@@ -2,7 +2,7 @@ import React from 'react';
 import ModalContent from '../../presentationalComponents/ModalContent.js';
 import CheckDailyLimitForm from '../../presentationalComponents/CheckDailyLimitForm.js';
 import '../../css/Modal.css';
-
+import { connect } from 'react-redux';
 
 class ModalCheckDailyLimit extends React.Component {
 
@@ -99,4 +99,10 @@ class ModalCheckDailyLimit extends React.Component {
     }
 }
 
-export default ModalCheckDailyLimit;
+function mapStateToProps(state) {
+    return { 
+        multisig: state.data.multisig
+    };
+}
+
+export default connect(mapStateToProps)(ModalCheckDailyLimit);

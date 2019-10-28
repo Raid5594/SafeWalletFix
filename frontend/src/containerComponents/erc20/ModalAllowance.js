@@ -2,8 +2,9 @@ import React from 'react';
 import ModalContent from '../../presentationalComponents/ModalContent.js';
 import AllowanceFormERC from '../../presentationalComponents/AllowanceFormERC.js';
 import '../../css/Modal.css';
+import { connect } from 'react-redux';
 
-class ModalTokenAllowance extends React.Component {
+class ModalAllowance extends React.Component {
 
     constructor(props) {
         super(props);
@@ -63,8 +64,8 @@ class ModalTokenAllowance extends React.Component {
     };
 
     checkAllowance = (ownerPub, multisigERC20Address) => {
-        let modal = this;
-        let token = this.props.token;
+        const modal = this;
+        const token = this.props.token;
         console.log(ownerPub);
         console.log(multisigERC20Address);
         console.log(token.address);
@@ -105,4 +106,12 @@ class ModalTokenAllowance extends React.Component {
     }
 }
 
-export default ModalTokenAllowance;
+function mapStateToProps(state) {
+    return { 
+        address: state.data.etherAddress,
+        multisigERC20Address: state.data.multisigERC20Address,
+        token: state.data.chosenToken
+    };
+}
+
+export default connect(mapStateToProps)(ModalAllowance);

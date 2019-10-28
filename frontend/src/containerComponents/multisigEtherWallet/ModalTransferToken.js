@@ -5,6 +5,7 @@ import ModalContent from '../../presentationalComponents/ModalContent.js';
 import TransferWithTokenForm from '../../presentationalComponents/TransferWithTokenForm.js';
 import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
+import { connect } from 'react-redux';
 
 class ModalTransferToken extends React.Component {
 
@@ -98,12 +99,12 @@ class ModalTransferToken extends React.Component {
 
     transfer = (amountToTransfer, recipientAddress, privateKey, tokenTFA) => {
 
-        let web3 = this.props.web3;
-        let multisig = this.props.multisig;
-        let multisigAddress = this.props.multisigAddress;
-        let modal = this;
-        let updateBalances = this.props.updateBalances;
-        let addrFrom = this.props.address;
+        const web3 = this.props.web3;
+        const multisig = this.props.multisig;
+        const multisigAddress = this.props.multisigAddress;
+        const modal = this;
+        const updateBalances = this.props.updateBalances;
+        const addrFrom = this.props.address;
         const priv = Buffer.from(privateKey, 'hex');
 
         // Getting Ethereum transaction count
@@ -175,7 +176,7 @@ class ModalTransferToken extends React.Component {
                                                 .once('confirmation', function(confNumber, receipt){ 
                                                     console.log('Transaction confirmation number: ', confNumber);
                                                     console.log('Second receipt of transaction: ', receipt);
-                                                    updateBalances();
+                                                    updateBalances(multisig);
                                             
                                                     modal.setState({ 
                                                       txReceipt: receipt,
@@ -237,4 +238,14 @@ class ModalTransferToken extends React.Component {
     }
 }
 
-export default ModalTransferToken;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        multisig: state.data.multisig,
+        multisigAddress: state.data.multisigAddress,
+        updateBalances: state.data.updateBalancesEther
+    };
+}
+
+export default connect(mapStateToProps)(ModalTransferToken);

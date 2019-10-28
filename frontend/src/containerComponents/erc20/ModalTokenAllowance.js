@@ -5,6 +5,7 @@ import ModalContent from '../../presentationalComponents/ModalContent.js';
 import IncreaseAllowanceFormERC from '../../presentationalComponents/IncreaseAllowanceFormERC.js';
 import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
+import { connect } from 'react-redux';
 
 class ModalTokenAllowance extends React.Component {
 
@@ -76,10 +77,10 @@ class ModalTokenAllowance extends React.Component {
     };
 
     increaseAllowance = (amountAllowance, privateKey) => {
-        let web3 = this.props.web3;
-        let modal = this;
-        let multisigERC20Address = this.props.multisigERC20Address;
-        let token = this.props.token;
+        const web3 = this.props.web3;
+        const modal = this;
+        const multisigERC20Address = this.props.multisigERC20Address;
+        const token = this.props.token;
         const priv = Buffer.from(privateKey, 'hex');
 
         web3.eth.getTransactionCount(this.props.address, (err, txCount) => {
@@ -166,4 +167,13 @@ class ModalTokenAllowance extends React.Component {
     }
 }
 
-export default ModalTokenAllowance;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        multisigERC20Address: state.data.multisigERC20Address,
+        token: state.data.chosenToken
+    };
+}
+
+export default connect(mapStateToProps)(ModalTokenAllowance);

@@ -2,6 +2,7 @@ import React from 'react';
 import ModalContent from '../../presentationalComponents/ModalContent.js';
 import CheckDailyLimitERCForm from '../../presentationalComponents/CheckDailyLimitERCForm.js';
 import '../../css/Modal.css';
+import { connect } from 'react-redux';
 
 class ModalCheckDailyLimitERC extends React.Component {
 
@@ -63,9 +64,9 @@ class ModalCheckDailyLimitERC extends React.Component {
     };
 
     checkLimit = (ownerPub, tokenSymbol) => {
-        let modal = this;
-        let multisigERC20Token = this.props.multisigERC20Token;
-        multisigERC20Token.methods.limits(ownerPub, tokenSymbol).call({ from: ownerPub }).then( limit => {
+        const modal = this;
+        const multisigERC20 = this.props.multisigERC20;
+        multisigERC20.methods.limits(ownerPub, tokenSymbol).call({ from: ownerPub }).then( limit => {
             modal.setState({ 
                 limit: limit.dailyLimit,
                 dailyLimitReceipt: true
@@ -87,7 +88,7 @@ class ModalCheckDailyLimitERC extends React.Component {
                 <ModalContent 
                 closeModal={this.closeModal} 
                 onKeyDown={this.onKeyDown}
-                onClickAwsay={this.onClickAway}
+                onClickAway={this.onClickAway}
                 modalRef={n => this.modalNode = n}> 
                 {this.state.dailyLimitReceipt ? 
                 <p className="modalTextTx">Current Token limit is: {this.state.limit}
@@ -101,4 +102,11 @@ class ModalCheckDailyLimitERC extends React.Component {
     }
 }
 
-export default ModalCheckDailyLimitERC;
+function mapStateToProps(state) {
+    return { 
+        multisigERC20: state.data.multisigERC20,
+        tokenSymbol: state.data.chosenTokenSymbol
+    };
+}
+
+export default connect(mapStateToProps)(ModalCheckDailyLimitERC);

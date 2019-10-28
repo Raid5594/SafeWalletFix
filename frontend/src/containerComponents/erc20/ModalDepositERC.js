@@ -5,6 +5,7 @@ import ModalContent from '../../presentationalComponents/ModalContent.js';
 import DepositFormERC from '../../presentationalComponents/DepositFormERC.js';
 import '../../css/Modal.css';
 import {Transaction as Tx} from 'ethereumjs-tx';
+import { connect } from 'react-redux';
 
 class ModalDepositERC extends React.Component {
 
@@ -76,18 +77,20 @@ class ModalDepositERC extends React.Component {
     };
 
     deposit = (amountDeposit, privateKey) => {
-        let web3 = this.props.web3;
-        let modal = this;
-        let updateERCBalances = this.props.updateERCBalances;
-        let multisigERC20Address = this.props.multisigERC20Address;
-        let multisigERC20Token = this.props.multisigERC20Token;
-        let tokenSymbol = this.props.tokenSymbol;
+        const web3 = this.props.web3;
+        const modal = this;
+        const tokenImperial = this.props.tokenImperial;
+        const tokenDemocratic = this.props.tokenDemocratic;
+        const updateERCBalances = this.props.updateERCBalances;
+        const multisigERC20Address = this.props.multisigERC20Address;
+        const multisigERC20 = this.props.multisigERC20;
+        const tokenSymbol = this.props.tokenSymbol;
         const priv = Buffer.from(privateKey, 'hex');
-
+        console.log(tokenSymbol);
         web3.eth.getTransactionCount(this.props.address, (err, txCount) => {
           // Build the transaction
             web3.eth.getGasPrice().then((gasPrice) => {
-                multisigERC20Token.methods.depositFunds_xur(tokenSymbol, amountDeposit).estimateGas({gas: gasPrice, from: this.props.address}, function(error, gasAmount) {
+                multisigERC20.methods.depositFunds_xur(tokenSymbol, amountDeposit).estimateGas({gas: gasPrice, from: this.props.address}, function(error, gasAmount) {
                     console.log('Current gas price: ', gasPrice);
                     console.log('Estimate of gas usage: ', gasAmount);
                     const txObject = {
@@ -95,7 +98,7 @@ class ModalDepositERC extends React.Component {
                         gasLimit: web3.utils.toHex(gasAmount),
                         gasPrice: web3.utils.toHex(gasPrice), 
                         to: multisigERC20Address,
-                        data: multisigERC20Token.methods.depositFunds_xur(tokenSymbol, amountDeposit).encodeABI()
+                        data: multisigERC20.methods.depositFunds_xur(tokenSymbol, amountDeposit).encodeABI()
                     };
                     console.log(txObject);
 
@@ -122,7 +125,9 @@ class ModalDepositERC extends React.Component {
                     .once('confirmation', function(confNumber, receipt){ 
                         console.log('Transaction confirmation number: ', confNumber);
                         console.log('Transaction receipt: ', receipt);
-                        updateERCBalances();
+
+                        updateERCBalances(tokenImperial, tokenDemocratic, multisigERC20);
+
                         modal.setState({ 
                             txReceipt: receipt,
                             confirmationReceipt: true, 
@@ -169,4 +174,17 @@ class ModalDepositERC extends React.Component {
     }
 }
 
-export default ModalDepositERC;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress,
+        tokenImperial: state.data.tokenImperial,
+        tokenDemocratic: state.data.tokenDemocratic,
+        multisigERC20: state.data.multisigERC20,
+        multisigERC20Address: state.data.multisigERC20Address,
+        updateERCBalances: state.data.updateBalancesERC,
+        tokenSymbol: state.data.chosenTokenSymbol
+    };
+}
+
+export default connect(mapStateToProps)(ModalDepositERC);

@@ -2,6 +2,7 @@ import React from 'react';
 import ModalContent from '../../presentationalComponents/ModalContent.js';
 import GetTokenForm from '../../presentationalComponents/GetTokenForm.js';
 import '../../css/Modal.css';
+import { connect } from 'react-redux';
 
 class ModalToken extends React.Component {
 
@@ -68,10 +69,10 @@ class ModalToken extends React.Component {
             if (err) {
                 console.log(err);
             } else {
-                let signatureObj = this.props.web3.eth.accounts.sign(`Token ${txCount}`, `0x${this.state.privateKey}`);
-                let addrRecover = this.props.web3.eth.accounts.recover(`Token ${txCount}`, signatureObj.signature);
-                var xhttp = new XMLHttpRequest();
-                var data = { address: this.props.address , signature : signatureObj.signature};
+                const signatureObj = this.props.web3.eth.accounts.sign(`Token ${txCount}`, `0x${this.state.privateKey}`);
+                const addrRecover = this.props.web3.eth.accounts.recover(`Token ${txCount}`, signatureObj.signature);
+                const xhttp = new XMLHttpRequest();
+                const data = { address: this.props.address , signature : signatureObj.signature};
                 console.log(data);
                 console.log(addrRecover);
                 
@@ -153,4 +154,11 @@ class ModalToken extends React.Component {
     }
 }
 
-export default ModalToken;
+function mapStateToProps(state) {
+    return { 
+        web3: state.data.web3,
+        address: state.data.etherAddress
+    };
+}
+
+export default connect(mapStateToProps)(ModalToken);

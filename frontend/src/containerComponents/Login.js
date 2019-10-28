@@ -1,5 +1,7 @@
 import React from 'react';
 import '../css/Smart.css';
+import { connect } from 'react-redux';
+import { specifyAddress } from '../redux/actions';
 
 class Login extends React.Component {
 
@@ -33,14 +35,10 @@ class Login extends React.Component {
     handleSubmit = (event) => {
         event.preventDefault();
         if (this.state.errors.address.length === 0 && this.state.typed === true) {
-            this.props.setAddress(this.state.address);
+            this.props.specifyAddress(this.state.address);
         } else {
             console.error('Invalid Form');
         }
-    }
-
-    setAddress = () => {
-        this.props.setAddress(this.state.address);
     }
 
     render() {
@@ -59,4 +57,4 @@ class Login extends React.Component {
     }
 }
 
-export default Login;
+export default connect(null, { specifyAddress })(Login);
