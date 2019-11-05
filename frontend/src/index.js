@@ -8,9 +8,9 @@ import './css/index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
-import store from './redux/store';
+import store from './stateManagement';
 
-store.subscribe(() => console.log(store.getState()));;
+store.subscribe(() => console.log(store.getState()));
 const rootElement = document.getElementById('root');
 ReactDOM.render(
   <Provider store={store}>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Login from './containerComponents/Login.js';
-import BlockchainData from './containerComponents/BlockchainData.js';
+import { Login, BlockchainData } from './components';
 import { connect } from 'react-redux';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import './css/App.css';
 
@@ -9,9 +9,13 @@ class App extends Component {
 
     render() {
         return (
-            <div>
-               { this.props.login ? <BlockchainData/> : <Login/>}
-            </div>
+            <Router>
+                <div>
+                   { this.props.login ? 
+                       <Route path = '/Blockchain/' component={BlockchainData} /> : 
+                       <Route path = '/' component={Login} /> }
+                </div>
+            </Router>
         );
     }
 }

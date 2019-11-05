@@ -5,4 +5,11 @@
     "contractsCompile": "cd contracts && truffle compile",
     "contractsDeploy": "cd contracts && truffle migrate"
   },
+  "dependencies": {
+    "concurrently": "^5.0.0",
+    "react-router-dom": "^5.1.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-export-default-from": "^7.5.2"
+  }
 }
